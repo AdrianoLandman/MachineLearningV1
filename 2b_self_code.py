@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Data: positions, timesteps, and initial position
+# Data: positions and timesteps
 
 positions = np.array([
     [ 2.00,  0.00,  1.00],
@@ -55,9 +55,9 @@ def gradient_of_error(params, positions, times):
 optimized_params = gradient_descent(
     initial_guess_p0_v_and_a=np.zeros(9),
     gradient=gradient_of_error,
-    learn_rate=0.0001,
-    max_iter= 2000000,
-    tol=0.000001)
+    learn_rate=0.0001,                        #LEARNING RATE, CHANGE VALUE HERE
+    max_iter= 2000000,                        #MAX NUMBER OF ITERATIONS, CHANGE VALUE HERE
+    tol=0.000001)                             #TOLERANCE, CHANGE VALUE HERE
 
 x0, y0, z0, vx, vy, vz, ax, ay, az = optimized_params
 
@@ -80,6 +80,7 @@ final_sse = sse_function(optimized_params, positions, times)
 print("Estimated velocity v =", np.array([vx, vy, vz]))
 print("Estimated acceleration a =", np.array([ax, ay, az]))
 print("Final residual error (SSE) =", final_sse)
+
 
 
 
