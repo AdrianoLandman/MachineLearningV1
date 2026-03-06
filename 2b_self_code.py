@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Feb 19 15:14:45 2026
-
-@author: A3ano
-"""
-# -*- coding: utf-8 -*-
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -87,6 +80,7 @@ final_sse = sse_function(optimized_params, positions, times)
 print("Estimated velocity v =", np.array([vx, vy, vz]))
 print("Estimated acceleration a =", np.array([ax, ay, az]))
 print("Final residual error (SSE) =", final_sse)
+
 
 
 
