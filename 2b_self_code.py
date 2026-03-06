@@ -22,12 +22,10 @@ positions = np.array([
 
 times = np.array([1, 2, 3, 4, 5, 6])
 
-p0 = positions[0]   # P(1)
-
 #gradient descent solver
-def gradient_descent(initial_guess_v_and_a, gradient, learn_rate, max_iter, tol):
+def gradient_descent(initial_guess_p0_v_and_a, gradient, learn_rate, max_iter, tol):
     
-    params = initial_guess_v_and_a
+    params = initial_guess_p0_v_and_a
     
     for iteration in range(max_iter):
         grad = gradient(params, positions, times)
@@ -40,10 +38,12 @@ def gradient_descent(initial_guess_v_and_a, gradient, learn_rate, max_iter, tol)
     return params
 
 def gradient_of_error(params, positions, times):
-    vx, vy, vz, ax, ay, az = params
+    x0, y0, z0, vx, vy, vz, ax, ay, az = params
+    p0 = np.array([x0, y0, z0])
     v = np.array([vx, vy, vz])
     a = np.array([ax, ay, az])
-
+    
+    dp0 = np.zeros(3)
     dv = np.zeros(3)
     da = np.zeros(3)
 
@@ -53,24 +53,26 @@ def gradient_of_error(params, positions, times):
         predicted = p0 + v * t + 0.5 * a * (t**2)
         residual = positions[i] - predicted  
         
+        dp0 += -2 * residual
         dv += -2.0 * t * residual
         da += -(t**2) * residual
 
-    return np.concatenate([dv, da])
+    return np.concatenate([p0, dv, da])
 
 optimized_params = gradient_descent(
-    initial_guess_v_and_a=np.zeros(6),
+    initial_guess_p0_v_and_a=np.zeros(9),
     gradient=gradient_of_error,
-    learn_rate=0.001,
-    max_iter= 20000,
+    learn_rate=0.0001,
+    max_iter= 2000000,
     tol=0.000001)
 
-vx, vy, vz, ax, ay, az = optimized_params
+x0, y0, z0, vx, vy, vz, ax, ay, az = optimized_params
 
 def sse_function(params, positions, times):
-    vx, vy, vz, ax, ay, az = params
+    x0, y0, z0, vx, vy, vz, ax, ay, az = params
     v = np.array([vx, vy, vz])
     a = np.array([ax, ay, az])
+    p0 = np.array([x0, y0, z0])
 
     predicted = np.zeros_like(positions)
     for i in range(len(times)):
@@ -79,19 +81,13 @@ def sse_function(params, positions, times):
    
     sse = np.sum((positions - predicted) ** 2)
     return sse
-    
-optimized_params = gradient_descent(
-    initial_guess_v_and_a=np.zeros(6),
-    gradient=gradient_of_error,
-    learn_rate=0.001,
-    max_iter= 200000,
-    tol=0.00001)
 
 final_sse = sse_function(optimized_params, positions, times)
 
 print("Estimated velocity v =", np.array([vx, vy, vz]))
 print("Estimated acceleration a =", np.array([ax, ay, az]))
 print("Final residual error (SSE) =", final_sse)
+
 
 
 
