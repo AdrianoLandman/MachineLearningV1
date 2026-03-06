@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar  5 11:08:58 2026
 
-@author: A3ano
-"""
 import numpy as np
 
 #Drone tracking data for x, y and z
@@ -93,3 +88,4 @@ def error_function(params, positions, times):
 # Calculate the final residual error (sum of squared errors)
 final_error = error_function(optimized_constant_velocity, positions, times)
 print('Final error =', final_error)
+
