@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar  5 12:30:30 2026
-
-@author: A3ano
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,12 +14,10 @@ positions = np.array([
 
 times = np.array([1, 2, 3, 4, 5, 6])
 
-p0 = positions[0]   # P(1)
-
 #gradient descent solver
-def gradient_descent(initial_guess_v_and_a, gradient, learn_rate, max_iter, tol):
+def gradient_descent(initial_guess_p0_v_and_a, gradient, learn_rate, max_iter, tol):
     
-    params = initial_guess_v_and_a
+    params = initial_guess_p0_v_and_a
     
     for iteration in range(max_iter):
         grad = gradient(params, positions, times)
@@ -39,10 +30,12 @@ def gradient_descent(initial_guess_v_and_a, gradient, learn_rate, max_iter, tol)
     return params
 
 def gradient_of_error(params, positions, times):
-    vx, vy, vz, ax, ay, az = params
+    x0, y0, z0, vx, vy, vz, ax, ay, az = params
+    p0 = np.array([x0, y0, z0])
     v = np.array([vx, vy, vz])
     a = np.array([ax, ay, az])
-
+    
+    dp0 = np.zeros(3)
     dv = np.zeros(3)
     da = np.zeros(3)
 
@@ -52,24 +45,26 @@ def gradient_of_error(params, positions, times):
         predicted = p0 + v * t + 0.5 * a * (t**2)
         residual = positions[i] - predicted  
         
+        dp0 += -2 * residual
         dv += -2.0 * t * residual
         da += -(t**2) * residual
 
-    return np.concatenate([dv, da])
+    return np.concatenate([p0, dv, da])
 
 optimized_params = gradient_descent(
-    initial_guess_v_and_a=np.zeros(6),
+    initial_guess_p0_v_and_a=np.zeros(9),
     gradient=gradient_of_error,
-    learn_rate=0.001,
-    max_iter= 20000,
+    learn_rate=0.0001,
+    max_iter= 2000000,
     tol=0.000001)
 
-vx, vy, vz, ax, ay, az = optimized_params
+x0, y0, z0, vx, vy, vz, ax, ay, az = optimized_params
 
 def sse_function(params, positions, times):
-    vx, vy, vz, ax, ay, az = params
+    x0, y0, z0, vx, vy, vz, ax, ay, az = params
     v = np.array([vx, vy, vz])
     a = np.array([ax, ay, az])
+    p0 = np.array([x0, y0, z0])
 
     predicted = np.zeros_like(positions)
     for i in range(len(times)):
@@ -78,13 +73,6 @@ def sse_function(params, positions, times):
    
     sse = np.sum((positions - predicted) ** 2)
     return sse
-    
-optimized_params = gradient_descent(
-    initial_guess_v_and_a=np.zeros(6),
-    gradient=gradient_of_error,
-    learn_rate=0.001,
-    max_iter= 200000,
-    tol=0.00001)
 
 final_sse = sse_function(optimized_params, positions, times)
 
@@ -97,10 +85,10 @@ Continueing with question 2c
 """
 
 t_predict = 7
-predicted_position = p0 + np.array([vx, vy, vz]) * t_predict + 0.5 * np.array([ax, ay, az]) * (t_predict**2)
+predicted_position = np.array([x0, y0, z0]) + np.array([vx, vy, vz]) * t_predict + 0.5 * np.array([ax, ay, az]) * (t_predict**2)
 
-# -----------------------------
-# Plotting the positions
+#plotting predicted position, with actual positions for first 6 timesteps in 3D space
+
 plt.figure(figsize=(8, 6))
 
 # Plot the actual positions
@@ -126,8 +114,8 @@ plt.show()
 # Print the predicted position at t=7
 print(f"Predicted position at t=7: {predicted_position}")
 
+# -----------------------------
 # 3D Plotting of positions
-
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 
@@ -136,7 +124,7 @@ ax.plot(positions[:, 0], positions[:, 1], positions[:, 2], marker='o', label="Ac
 
 # Plot the predicted position at t = 7
 ax.scatter(predicted_position[0], predicted_position[1], predicted_position[2], 
-           color='blue', label=f"Predicted position at t=7", s=100, marker='^')
+           color='orange', label=f"Predicted position at t=7", s=100, marker='o')
 
 # Optional: label each point with its time
 for (x, y, z), t in zip(positions, times):
