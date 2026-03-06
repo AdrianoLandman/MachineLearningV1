@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Data: positions, timesteps, and initial position
+# Data: positions and timesteps
 
 positions = np.array([
     [ 2.00,  0.00,  1.00],
@@ -133,4 +133,5 @@ ax.set_title('Drone Trajectory (Constant Acceleration Model)')
 
 ax.legend()
 plt.show()
+
 
