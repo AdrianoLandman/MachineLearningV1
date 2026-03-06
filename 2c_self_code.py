@@ -54,9 +54,9 @@ def gradient_of_error(params, positions, times):
 optimized_params = gradient_descent(
     initial_guess_p0_v_and_a=np.zeros(9),
     gradient=gradient_of_error,
-    learn_rate=0.0001,
-    max_iter= 2000000,
-    tol=0.000001)
+    learn_rate=0.0001,                        #LEARNING RATE, CHANGE VALUE HERE
+    max_iter= 2000000,                        #MAX NUMBER OF ITERATIONS, CHANGE VALUE HERE
+    tol=0.000001)                             #TOLERANCE, CHANGE VALUE HERE
 
 x0, y0, z0, vx, vy, vz, ax, ay, az = optimized_params
 
@@ -91,53 +91,46 @@ predicted_position = np.array([x0, y0, z0]) + np.array([vx, vy, vz]) * t_predict
 
 plt.figure(figsize=(8, 6))
 
-# Plot the actual positions
+#Actual positions
 plt.plot(times, positions[:, 0], 'ro-', label="Actual x-position")
 plt.plot(times, positions[:, 1], 'go-', label="Actual y-position")
 plt.plot(times, positions[:, 2], 'bo-', label="Actual z-position")
 
-# Plot the predicted position at t = 7
+#plot t=7
 plt.plot(t_predict, predicted_position[0], 'r^', label=f"Predicted x-position at t=7", markersize=10)
 plt.plot(t_predict, predicted_position[1], 'g^', label=f"Predicted y-position at t=7", markersize=10)
 plt.plot(t_predict, predicted_position[2], 'b^', label=f"Predicted z-position at t=7", markersize=10)
 
-# Add labels and legend
 plt.xlabel('Time (seconds)')
 plt.ylabel('Position')
 plt.title('Drone Position vs Time (Constant Acceleration Model)')
 plt.legend()
 
-# Show the plot
 plt.grid(True)
 plt.show()
 
 # Print the predicted position at t=7
 print(f"Predicted position at t=7: {predicted_position}")
 
-# -----------------------------
 # 3D Plotting of positions
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 
-# Plot the actual positions at t = 1, 2, 3, 4, 5, 6
+#Actual positions in 3D space
 ax.plot(positions[:, 0], positions[:, 1], positions[:, 2], marker='o', label="Actual positions")
 
-# Plot the predicted position at t = 7
+#Predicted position at t = 7 in 3D space
 ax.scatter(predicted_position[0], predicted_position[1], predicted_position[2], 
            color='orange', label=f"Predicted position at t=7", s=100, marker='o')
 
-# Optional: label each point with its time
 for (x, y, z), t in zip(positions, times):
     ax.text(x, y, z, f"t={t}", fontsize=9)
 
-# Set labels and title
 ax.set_xlabel('X Position')
 ax.set_ylabel('Y Position')
 ax.set_zlabel('Z Position')
 ax.set_title('Drone Trajectory (Constant Acceleration Model)')
 
-# Display the legend
 ax.legend()
-
-# Show the plot
 plt.show()
+
