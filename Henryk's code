@@ -1,0 +1,158 @@
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Tracked positions (x, y, z) at 1 Hz for t = 1..6
+P = np.array([
+    [ 2.00,  0.00,  1.00],
+    [ 1.08,  1.68,  2.38],
+    [-0.83,  1.82,  2.49],
+    [-1.97,  0.28,  2.15],
+    [-1.31, -1.51,  2.59],
+    [ 0.57, -1.91,  4.32],
+])
+
+T = np.array([1, 2, 3, 4, 5, 6])
+
+# 3D trajectory plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+
+ax.plot(P[:, 0], P[:, 1], P[:, 2], marker="o")
+ax.scatter(P[:, 0], P[:, 1], P[:, 2])
+
+# Optional: label each point with its time
+for (x, y, z), t in zip(P, T):
+    ax.text(x, y, z, f"t={t}", fontsize=9)
+
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+ax.set_title("Drone trajectory")
+
+
+
+# Position x (time) = parameter + speed * t
+def position_x(t):
+    #px(t)=w0x + w1x * t
+    #py(t)=w0y + w1y * t
+    #pz(t)=w0z + w1z * t
+    pass
+
+#constant velocity derivative
+#dw0 = 2 * np.sum(errors)
+#acceleration derivative
+#dw1 = 2 * np.sum(errors * T)
+
+def gradient_descent(t, data, alpha=0.01, num_iterations=1000):
+    w0 = 0.0
+    w1 = 0.0
+
+    for _ in range(num_iterations):
+        predictions = w0 + w1 * t
+        errors = predictions - data
+
+        dw0 = 2 * np.sum(errors)
+        dw1 = 2 * np.sum(errors * t)
+
+        w0 -= alpha * dw0
+        w1 -= alpha * dw1
+
+    return w0, w1
+
+w0x, w1x = gradient_descent(T, P[:, 0])
+w0y, w1y = gradient_descent(T, P[:, 1])
+w0z, w1z = gradient_descent(T, P[:, 2])
+
+def compute_error(w0, w1, t, data):
+    predictions = w0 + w1 * t
+    return np.sum((predictions - data) ** 2)
+
+Ex = compute_error(w0x, w1x, T, P[:, 0])
+Ey = compute_error(w0y, w1y, T, P[:, 1])
+Ez = compute_error(w0z, w1z, T, P[:, 2])
+
+total_error = Ex + Ey + Ez
+print('Total SSE:',total_error)
+print('Velocities:', w1x, w1y, w1z)
+
+#_______________Constant acceleration_____________
+
+# px(t)=w0x + w1x * t + w2x * t**2
+# py(t)=w0y + w1y * t + w2y * t**2
+# pz(t)=w0z + w1z * t + w2z * t**2
+
+def gradient_descent_quad(t, data, alpha=0.0001, num_iterations=2000):
+
+    wa = 0.0
+    wb = 0.0
+    wc = 0.0
+
+    for _ in range(num_iterations):
+
+        predictions = wa + wb * t + wc *(t**2)
+        errors = predictions - data
+
+        da0 = 2*np.sum(errors)
+        db1 = 2*np.sum(errors*t)
+        dc2 = 2*np.sum(errors*(t**2))
+
+        wa -= alpha*da0
+        wb -= alpha*db1
+        wc -= alpha*dc2
+
+    return wa, wb, wc
+
+
+Exa = compute_error(w0x, w1x, T, P[:, 0])
+Eya = compute_error(w0y, w1y, T, P[:, 1])
+Eza = compute_error(w0z, w1z, T, P[:, 2])
+
+w0x, w1x, w2x = gradient_descent_quad(T, P[:,0])
+w0y, w1y, w2y = gradient_descent_quad(T, P[:,1])
+w0z, w1z, w2z = gradient_descent_quad(T, P[:,2])
+
+print(w0x, w1x, w2x)
+
+t_plot = np.linspace(1, 6, 100)
+
+prediction_x = w0x + w1x*t_plot + w2x*(t_plot**2)
+prediction_y = w0y + w1y*t_plot + w2y*(t_plot**2)
+prediction_z = w0z + w1z*t_plot + w2z*(t_plot**2)
+
+ax.scatter(prediction_x, prediction_y, prediction_z, marker="o")
+
+def prediction_x(t):
+    return w0x + w1x*t + w2x*(t**2)
+def prediction_y(t):
+    return w0y + w1y*t + w2y*(t**2)
+def prediction_z(t):
+    return w0z + w1z*t + w2z*(t**2)
+
+def compute_error_quad(w0, w1, w2, t, data):
+    predictions = w0 + w1*t + w2*(t**2)
+    return np.sum((predictions - data)**2)
+
+Ex = compute_error_quad(w0x, w1x, w2x, T, P[:,0])
+Ey = compute_error_quad(w0y, w1y, w2y, T, P[:,1])
+Ez = compute_error_quad(w0z, w1z, w2z, T, P[:,2])
+
+print("Total SSE (quadratic):", Ex + Ey + Ez)
+
+t_7 = [prediction_x(7) , prediction_y(7) , prediction_z(7)]
+
+ax.scatter(t_7[0], t_7[1], t_7[2])
+
+plt.show()
+
+print('t',t_7)
+print('Total SSE:',compute_error(w0x, w1x, T, P[:,0]))
+
+
+
+
+
+
+
+
+
